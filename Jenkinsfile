@@ -8,6 +8,9 @@ pipeline {
         COUPANG_SECRET_KEY   = credentials('COUPANG_SECRET_KEY')
         COUPANG_SUB_ID       = credentials('COUPANG_SUB_ID')
         PERPLEXITY_API_KEY   = credentials('PERPLEXITY_API_KEY')
+
+        // Python 설치 경로 직접 지정
+        PATH                  = "C:\\Python38\\;C:\\Python38\\Scripts\\;${env.PATH}"
     }
 
     triggers {
@@ -24,9 +27,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 bat """
-                  python -m venv venv
-                  venv\\Scripts\\activate
-                  pip install -r requirements.txt
+                  pip install --upgrade pip
+                  pip install --user -r requirements.txt
                 """
             }
         }
@@ -38,7 +40,7 @@ pipeline {
                   echo COUPANG_ACCESS_KEY length: !COUPANG_ACCESS_KEY:~0,0!
                   echo PERPLEXITY_API_KEY length: !PERPLEXITY_API_KEY:~0,0!
                   
-                  venv\\Scripts\\activate
+                  .venv1\\Scripts\\activate
                   set TISTORY_EMAIL=%TISTORY_EMAIL%
                   set TISTORY_PASSWORD=%TISTORY_PASSWORD%
                   set COUPANG_ACCESS_KEY=%COUPANG_ACCESS_KEY%
@@ -46,7 +48,7 @@ pipeline {
                   set COUPANG_SUB_ID=%COUPANG_SUB_ID%
                   set PERPLEXITY_API_KEY=%PERPLEXITY_API_KEY%
 
-                  python scripts\\daily_task.py
+                  python scripts\\Tstory_golden.py
                 """
             }
         }
