@@ -10,7 +10,8 @@ pipeline {
         PERPLEXITY_API_KEY   = credentials('PERPLEXITY_API_KEY')
 
         // Python 설치 경로 직접 지정
-        PATH                  = "C:\\Python38\\;C:\\Python38\\Scripts\\;${env.PATH}"
+        PYTHON_HOME          = "C:\\Python38"
+        PATH                 = "${env.PYTHON_HOME};${env.PYTHON_HOME}\\Scripts;${env.PATH}"
     }
 
     triggers {
@@ -27,20 +28,17 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 bat """
-                  pip install --upgrade pip
-                  pip install --user -r requirements.txt
+                  "${PYTHON_HOME}\\python.exe" -m pip install --upgrade pip
+                  "${PYTHON_HOME}\\python.exe" -m pip install --user -r requirements.txt
                 """
             }
         }
 
-        stage('Run Scripts') {
+       stage('Run Scripts') {
             steps {
                 bat """
-                  echo TISTORY_EMAIL length: !TISTORY_EMAIL:~0,0!
-                  echo COUPANG_ACCESS_KEY length: !COUPANG_ACCESS_KEY:~0,0!
-                  echo PERPLEXITY_API_KEY length: !PERPLEXITY_API_KEY:~0,0!
-                  
-                  .venv1\\Scripts\\activate
+                  call .venv1\\Scripts\\activate
+
                   set TISTORY_EMAIL=%TISTORY_EMAIL%
                   set TISTORY_PASSWORD=%TISTORY_PASSWORD%
                   set COUPANG_ACCESS_KEY=%COUPANG_ACCESS_KEY%
@@ -48,7 +46,8 @@ pipeline {
                   set COUPANG_SUB_ID=%COUPANG_SUB_ID%
                   set PERPLEXITY_API_KEY=%PERPLEXITY_API_KEY%
 
-                  python scripts\\Tstory_golden.py
+                  // 아래 경로와 파일명을 실제 실행할 스크립트로 변경하세요
+                  "${PYTHON_HOME}\\python.exe" scripts\\Tstory_golden.py
                 """
             }
         }
