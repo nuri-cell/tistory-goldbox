@@ -9,7 +9,7 @@ pipeline {
         COUPANG_SUB_ID     = credentials('COUPANG_SUB_ID')
         PERPLEXITY_API_KEY = credentials('PERPLEXITY_API_KEY')
         // 필요하다면 Python 설치 경로를 직접 등록해주세요 (예시):
-        PATH = C:\Users\mypak\AppData\Local\Programs\Python\Python38\Scripts;${env.PATH}"
+        PATH = "C:\\Users\\mypak\\AppData\\Local\\Programs\\Python\\Python38\\Scripts;${env.PATH}"
     }
 
     triggers {
