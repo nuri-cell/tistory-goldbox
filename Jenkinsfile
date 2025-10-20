@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        // Docker를 사용해 Python 환경을 컨테이너로 제공
+        docker {
+            image 'python:3.8-slim'  // Python 3.8 공식 Docker 이미지
+            args '-u root:root'      // 필요시 권한 설정
+        }
+    }
 
     environment {
         TISTORY_EMAIL        = credentials('TISTORY_EMAIL')
@@ -8,10 +14,6 @@ pipeline {
         COUPANG_SECRET_KEY   = credentials('COUPANG_SECRET_KEY')
         COUPANG_SUB_ID       = credentials('COUPANG_SUB_ID')
         PERPLEXITY_API_KEY   = credentials('PERPLEXITY_API_KEY')
-
-        // Python 설치 경로 직접 지정
-        PYTHON_HOME          = "C:\\Python38"
-        PATH                 = "${env.PYTHON_HOME};${env.PYTHON_HOME}\\Scripts;${env.PATH}"
     }
 
     triggers {
@@ -27,28 +29,26 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                bat """
-                  "${PYTHON_HOME}\\python.exe" -m pip install --upgrade pip
-                  "${PYTHON_HOME}\\python.exe" -m pip install --user -r requirements.txt
-                """
+                sh '''
+                  python -m pip install --upgrade pip
+                  python -m pip install -r requirements.txt
+                '''
             }
         }
 
-       stage('Run Scripts') {
+        stage('Run Scripts') {
             steps {
-                bat """
-                  call .venv1\\Scripts\\activate
+                sh '''
+                  export TISTORY_EMAIL=${TISTORY_EMAIL}
+                  export TISTORY_PASSWORD=${TISTORY_PASSWORD}
+                  export COUPANG_ACCESS_KEY=${COUPANG_ACCESS_KEY}
+                  export COUPANG_SECRET_KEY=${COUPANG_SECRET_KEY}
+                  export COUPANG_SUB_ID=${COUPANG_SUB_ID}
+                  export PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
 
-                  set TISTORY_EMAIL=%TISTORY_EMAIL%
-                  set TISTORY_PASSWORD=%TISTORY_PASSWORD%
-                  set COUPANG_ACCESS_KEY=%COUPANG_ACCESS_KEY%
-                  set COUPANG_SECRET_KEY=%COUPANG_SECRET_KEY%
-                  set COUPANG_SUB_ID=%COUPANG_SUB_ID%
-                  set PERPLEXITY_API_KEY=%PERPLEXITY_API_KEY%
-
-                  // 아래 경로와 파일명을 실제 실행할 스크립트로 변경하세요
-                  "${PYTHON_HOME}\\python.exe" scripts\\Tstory_golden.py
-                """
+                  # 실제 실행할 스크립트로 변경하세요
+                  python scripts/Tstory_golden.py
+                '''
             }
         }
     }
