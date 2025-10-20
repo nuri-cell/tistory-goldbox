@@ -1,38 +1,72 @@
 pipeline {
     agent any
+
     environment {
-        // Credentials에 등록한 ID 사용
-        MY_API_KEY = credentials('API_KEY')
+        // Credentials IDs must match the ones registered in Jenkins
+        TISTORY_EMAIL        = credentials('TISTORY_EMAIL')
+        TISTORY_PASSWORD     = credentials('TISTORY_PASSWORD')
+        COUPANG_ACCESS_KEY   = credentials('COUPANG_ACCESS_KEY')
+        COUPANG_SECRET_KEY   = credentials('COUPANG_SECRET_KEY')
+        COUPANG_SUB_ID       = credentials('COUPANG_SUB_ID')
+        PERPLEXITY_API_KEY   = credentials('PERPLEXITY_API_KEY')
     }
+
     triggers {
-        // 매일 오전 7시30분 실행 (UTC 기준 아닐 경우 조정)
+        // 매일 오전 7시 30분에 실행 (서버 로컬 타임존 기준)
         cron('30 7 * * *')
     }
+
     stages {
         stage('Checkout') {
             steps {
-                // Git URL은 실제 저장소 주소로 변경
-                git branch: 'main', url: 'https://github.com/nuri-cell/repo.git'
+                // 본인의 Git 저장소 URL로 변경하세요
+                git branch: 'main', url: 'https://github.com/username/repo.git'
             }
         }
-        stage('Build & Run') {
+
+        stage('Install Dependencies') {
             steps {
-                // 예시: 스크립트 실행 시 환경 변수로 API 키 전달
+                // 예: Python 가상 환경 설정 및 패키지 설치
                 sh '''
-                  echo "Running daily job..."
-                  export API_KEY=${MY_API_KEY}
+                  python3 -m venv venv
+                  . venv/bin/activate
+                  pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run Scripts') {
+            steps {
+                // 환경 변수로 키가 제대로 로드됐는지 확인 (길이 출력 예시)
+                sh '''
+                  echo "TISTORY_EMAIL length: ${#TISTORY_EMAIL}"
+                  echo "COUPANG_ACCESS_KEY length: ${#COUPANG_ACCESS_KEY}"
+                  echo "PERPLEXITY_API_KEY length: ${#PERPLEXITY_API_KEY}"
+                '''
+                
+                // 실제 스크립트 실행 예시
+                sh '''
+                  . venv/bin/activate
+                  export TISTORY_EMAIL=${TISTORY_EMAIL}
+                  export TISTORY_PASSWORD=${TISTORY_PASSWORD}
+                  export COUPANG_ACCESS_KEY=${COUPANG_ACCESS_KEY}
+                  export COUPANG_SECRET_KEY=${COUPANG_SECRET_KEY}
+                  export COUPANG_SUB_ID=${COUPANG_SUB_ID}
+                  export PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
+
                   # 예: Python 스크립트 실행
                   python3 scripts/daily_task.py
                 '''
             }
         }
     }
+
     post {
         success {
-            echo '빌드 및 스크립트 실행 성공'
+            echo '✅ Pipeline completed successfully.'
         }
         failure {
-            echo '빌드 또는 스크립트 실행 실패'
+            echo '❌ Pipeline failed. Check console output for details.'
         }
     }
 }
