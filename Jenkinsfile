@@ -20,7 +20,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // 본인의 Git 저장소 URL로 변경하세요
-                git branch: 'main', url: 'https://github.com/username/repo.git'
+                git branch: 'main', url: ' https://github.com/nuri-cell/tistory-goldbox.git'
             }
         }
 
