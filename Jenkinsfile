@@ -36,13 +36,14 @@ pipeline {
             steps {
                 bat """
                   echo ===== Install Dependencies =====
-                  pip install --upgrade pip || echo pip not found!
-                  
+                  pip install --upgrade pip || echo pip upgrade failed
                   if exist requirements.txt (
-                      pip install --user -r requirements.txt || echo Failed pip install
+                      pip install --user -r requirements.txt || echo requirements install failed
                   ) else (
                       echo requirements.txt not found, skipping...
                   )
+                  echo ===== Install Playwright Browsers =====
+                  python -m playwright install || echo playwright install failed
                 """
             }
         }
@@ -51,23 +52,18 @@ pipeline {
             steps {
                 bat """
                   echo ===== Activate and Run =====
-                  
                   if exist .venv1\\Scripts\\activate.bat (
                       call .venv1\\Scripts\\activate.bat
                   ) else (
                       echo venv not found, using system Python
                   )
-
-                  REM -- 프로젝트 루트를 PYTHONPATH에 추가
                   set PYTHONPATH=%WORKSPACE%;%PYTHONPATH%
-
                   set TISTORY_EMAIL=%TISTORY_EMAIL%
                   set TISTORY_PASSWORD=%TISTORY_PASSWORD%
                   set COUPANG_ACCESS_KEY=%COUPANG_ACCESS_KEY%
                   set COUPANG_SECRET_KEY=%COUPANG_SECRET_KEY%
                   set COUPANG_SUB_ID=%COUPANG_SUB_ID%
                   set PERPLEXITY_API_KEY=%PERPLEXITY_API_KEY%
-                  
                   echo Running script: Tistory\\Tstory_golden.py
                   python Tistory\\Tstory_golden.py || echo Script execution failed
                 """
