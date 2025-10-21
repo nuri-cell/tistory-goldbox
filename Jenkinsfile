@@ -69,11 +69,12 @@ pipeline {
                   python Tistory\\Tstory_golden.py || echo Script execution failed
                 """
             }
-            stage('List Workspace') {
-                steps {
-                    bat 'echo ===== Workspace Files ====='
-                    bat 'dir /B /S'
-                }
+        }
+
+        stage('List Workspace') {
+            steps {
+                bat 'echo ===== Workspace Files ====='
+                bat 'dir /B /S'
             }
         }
     }
