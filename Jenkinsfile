@@ -65,8 +65,8 @@ pipeline {
                   set COUPANG_SUB_ID=%COUPANG_SUB_ID%
                   set PERPLEXITY_API_KEY=%PERPLEXITY_API_KEY%
                   
-                  echo Running script: Tstory_golden.py
-                  python Tstory_golden.py || echo Script execution failed
+                  echo Running script: Tistory\\Tstory_golden.py
+                  python Tistory\\Tstory_golden.py || echo Script execution failed
                 """
             }
             stage('List Workspace') {
