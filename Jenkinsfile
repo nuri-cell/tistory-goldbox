@@ -8,8 +8,7 @@ pipeline {
         COUPANG_SECRET_KEY = credentials('COUPANG_SECRET_KEY')
         COUPANG_SUB_ID     = credentials('COUPANG_SUB_ID')
         PERPLEXITY_API_KEY = credentials('PERPLEXITY_API_KEY')
-        // 필요하다면 Python 설치 경로를 직접 등록해주세요 (예시):
-        PATH = "C:\\Users\\mypak\\AppData\\Local\\Programs\\Python\\Python38\\Scripts;${env.PATH}"
+        PATH = "C:\\Users\\mypak\\AppData\\Local\\Programs\\Python\\Python38;C:\\Users\\mypak\\AppData\\Local\\Programs\\Python\\Python38\\Scripts;${env.PATH}"
     }
 
     triggers {
@@ -25,7 +24,6 @@ pipeline {
 
         stage('Validate Python') {
             steps {
-                // Windows 에이전트에서 python 명령 존재 여부 확인
                 bat """
                   echo ===== Check Python =====
                   where python || echo Python executable not found!
@@ -38,10 +36,13 @@ pipeline {
             steps {
                 bat """
                   echo ===== Install Dependencies =====
-                  // python 설치 경로가 여러 개라면 경로 지정 예시:
-                  // "C:\\Python38\\python.exe" -m pip install --upgrade pip
                   pip install --upgrade pip || echo pip not found!
-                  pip install --user -r requirements.txt || echo Failed pip install
+                  
+                  if exist requirements.txt (
+                      pip install --user -r requirements.txt || echo Failed pip install
+                  ) else (
+                      echo requirements.txt not found, skipping...
+                  )
                 """
             }
         }
@@ -50,7 +51,12 @@ pipeline {
             steps {
                 bat """
                   echo ===== Activate and Run =====
-                  call .venv1\\Scripts\\activate.bat || echo venv activation failed
+                  
+                  if exist .venv1\\Scripts\\activate.bat (
+                      call .venv1\\Scripts\\activate.bat
+                  ) else (
+                      echo venv not found, using system Python
+                  )
                   
                   set TISTORY_EMAIL=%TISTORY_EMAIL%
                   set TISTORY_PASSWORD=%TISTORY_PASSWORD%
