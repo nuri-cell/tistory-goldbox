@@ -57,7 +57,10 @@ pipeline {
                   ) else (
                       echo venv not found, using system Python
                   )
-                  
+
+                  REM -- 프로젝트 루트를 PYTHONPATH에 추가
+                  set PYTHONPATH=%WORKSPACE%;%PYTHONPATH%
+
                   set TISTORY_EMAIL=%TISTORY_EMAIL%
                   set TISTORY_PASSWORD=%TISTORY_PASSWORD%
                   set COUPANG_ACCESS_KEY=%COUPANG_ACCESS_KEY%
